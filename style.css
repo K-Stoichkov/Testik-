@@ -541,8 +541,28 @@ html { scroll-behavior: smooth; }
 }
 
 /* =========================================================
-   ШРИФТ ИЗ ХИРО — ДЛЯ ВСЕГО САЙТА, ВКЛЮЧАЯ ЛОГОТИП
+   ЕДИНЫЙ ШРИФТ: SF Local
+   один и тот же файл на Windows / Android / macOS
    ========================================================= */
+@font-face {
+    font-family: 'SF Local';
+    src: url('fonts/sf-local-regular.woff2') format('woff2');
+    font-weight: 400;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'SF Local';
+    src: url('fonts/sf-local-bold.woff2') format('woff2');
+    font-weight: 600 900;
+    font-display: swap;
+}
+/* в SFNS нет блока █ — добираем его (и ₸) из SF Mono */
+@font-face {
+    font-family: 'SF Mono Local';
+    src: url('fonts/sf-mono.woff2') format('woff2');
+    font-weight: 400;
+    font-display: swap;
+}
 
 /* убираем автоматическое увеличение текста на мобильных */
 html {
@@ -555,7 +575,7 @@ body {
     -moz-osx-font-smoothing: grayscale;
 }
 
-/* логотип, навигация и акценты — тот же стек, что и в хиро */
+/* один шрифт для всех элементов — системные стеки больше не нужны */
 html,
 body,
 header a,
@@ -568,7 +588,7 @@ header a,
 .showcase-label,
 .showcase-card h2,
 .showcase-card h1 {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    font-family: 'SF Local', 'SF Mono Local', sans-serif;
 }
 
 /* =========================================================
