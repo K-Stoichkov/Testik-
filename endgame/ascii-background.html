@@ -15,6 +15,8 @@
   #ascii-bg {
     position: fixed; inset: 0; width: 100%; height: 100%;
     display: block; pointer-events: none;
+    opacity: 0;
+    transition: opacity .12s linear;
   }
   /* Мягкое свечение сверху — как на сайте LOOTBAR */
   .glow {
@@ -41,12 +43,12 @@
 
   function resize() {
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    width = window.innerWidth;
-    height = window.innerHeight;
-    canvas.width = width * dpr;
-    canvas.height = height * dpr;
-    canvas.style.width = width + 'px';
-    canvas.style.height = height + 'px';
+    // clientWidth/Height = реальный CSS-размер canvas, в отличие от
+    // window.innerWidth внутри iframe (до применения CSS там 300×150)
+    width = Math.max(1, canvas.clientWidth || document.documentElement.clientWidth || window.innerWidth || 1);
+    height = Math.max(1, canvas.clientHeight || document.documentElement.clientHeight || window.innerHeight || 1);
+    canvas.width = Math.round(width * dpr);
+    canvas.height = Math.round(height * dpr);
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.font = fontSize + 'px "Courier New", monospace';
     ctx.textBaseline = 'top';
@@ -59,7 +61,6 @@
   }
 
   function frame(time) {
-    requestAnimationFrame(frame);
     if (time - last < 1000 / settings.fps) return;
     last = time;
     ctx.clearRect(0, 0, width, height);
@@ -81,12 +82,32 @@
     });
   }
 
+  function loop(time) {
+    requestAnimationFrame(loop);
+    frame(time);
+  }
+
+  function show() {
+    canvas.style.opacity = '1';
+  }
+
+  resize();
+  window.addEventListener('resize', resize);
+  window.addEventListener('orientationchange', resize);
+  window.addEventListener('load', () => requestAnimationFrame(show));
+  // подстраховка, если iframe восстановлен из кэша и load уже не наступит
+  setTimeout(show, 300);
+
+  // ловим изменения размера iframe, которые не всегда приходят как resize
+  if (typeof ResizeObserver !== 'undefined') {
+    new ResizeObserver(resize).observe(canvas);
+  }
+  requestAnimationFrame(resize); // пересчёт после первого layout
+
   if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    resize();
-    window.addEventListener('resize', resize);
-    requestAnimationFrame(frame);
+    requestAnimationFrame(loop);
   } else {
-    resize();
+    requestAnimationFrame(() => frame(performance.now()));
   }
 })();
 </script>
